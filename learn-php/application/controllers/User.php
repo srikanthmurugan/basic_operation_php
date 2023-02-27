@@ -117,13 +117,24 @@
 
         }
         public function displaydata(){
+            if($this->session->has_userdata('username')){
             $this->load->model('user_model');
             $result['data'] = $this->user_model->display_records();
             $this->load->view('display_data',$result);
+            }
+            else{
+                echo 'YOU DON\'T HAVE RIGHTS TO ACCESS';
+                
+            }
+            
+        }
+        public function admin_logout(){
+            $this->session->unset_userdata('username');
+            redirect ('user/admin');
         }
 
         public function admin(){
-            if($this->session->has_userdata('email')){
+            if($this->session->has_userdata('username')){
                 redirect ('user/home');
 
             }
@@ -138,19 +149,21 @@
             else{
             $username = $this->input->post('username');
             $password = $this->input->post('password');
+            $this->load->database();
+            $this->load->model('admin_model');
             
 
-            if($username == "admin"){
-                if($password == "admin"){
+            if($user = $this->admin_model->getUser($username) ){
+                if($user->password == $password){
                     $this->load->view('home');
-                    $this->session->set_userdata('email',$username);
+                    $this->session->set_userdata('username',$username);
                 }
                 else{
                     echo 'login error';
                 }
             }
             else{
-                echo 'No such account for this email !';
+                echo 'No such account for this username !';
             }
             }
             
